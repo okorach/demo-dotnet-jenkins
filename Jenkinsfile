@@ -1,8 +1,12 @@
-
 pipeline {
   agent any
   stages {
-   stage('SonarQube LATEST analysis - .Net') {
+    stage('Code Checkout') {
+      steps {
+        checkout([$class: 'GitSCM', branches: [[name: '**']], extensions: [[$class: 'CloneOption', noTags: false, reference: '', shallow: false]], userRemoteConfigs: [[credentialsId: 'github-app', url: 'https://github.com/okorach/demo-maven-jenkins']]])
+      }
+    }
+    stage('SonarQube LATEST analysis - .Net') {
      steps {
        withSonarQubeEnv('SQ Latest', envOnly: true) {
          script {
@@ -19,7 +23,6 @@ pipeline {
            if (qg.status != 'OK') {
              echo ".Net component quality gate failed: ${qg.status}, proceeding anyway"
            }
-           sh 'rm -f comp-dotnet/build/sonar/report-task.txt'
          }
        }
      }
